@@ -24,8 +24,10 @@
 #' To change the threshold, use `lgr::get_logger("mlr3oml")$set_threshold()`.
 "_PACKAGE"
 
-.onLoad = function(libname, pkgname) { # nocov start
+.onLoad = function(libname, pkgname) { # nolint
+  # nocov start
   backports::import(pkgname)
+  backports::import(pkgname, "R_user_dir", force = TRUE)
   mlr3::mlr_tasks$add("oml", OMLTaskConnector)
   mlr3::mlr_resamplings$add("oml", OMLResamplingConnector)
 
@@ -34,8 +36,14 @@
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
+
+  utils::globalVariables(c("is_target", "is_ignore", "is_row_identifier"), pkgname)
 } # nocov end
 
-.onUnload <- function (libpath) { # nocov start
+.onUnload <- function (libpath) { # nolint
+  # nocov start
   library.dynam.unload("mlr3oml", libpath)
 } # nocov end
+
+
+leanify_package()

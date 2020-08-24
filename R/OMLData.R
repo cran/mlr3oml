@@ -8,6 +8,11 @@
 #' Alternatively, you can convert this object to a [mlr3::DataBackend] using
 #' `mlr3::as_data_backend()`.
 #'
+#' @section ARFF Files:
+#' This package comes with an own reader for ARFF files, based on [data.table::fread()].
+#' For sparse ARFF files and if the \CRANpkg{RWeka} package is installed, the reader
+#' automatically falls back to the implementation in ([RWeka::read.arff()]).
+#'
 #' @references
 #' \cite{mlr3oml}{vanschoren2014}
 #'
@@ -63,7 +68,7 @@ OMLData = R6Class("OMLData",
     #'   Name of the quality to extract.
     quality = function(name) {
       id = assert_string(name)
-      self$qualities[.(id), value, on = "name"]
+      self$qualities[list(id), "value", on = "name", with = FALSE][[1L]]
     },
 
     #' @description
@@ -78,7 +83,7 @@ OMLData = R6Class("OMLData",
         stopf("Data set with id '%i' does not have a default target attribute", self$id)
       }
 
-      switch(as.character(self$features[.(target), data_type, on = "name"]),
+      switch(as.character(self$features[list(target), "data_type", on = "name", with = FALSE][[1L]]),
         "nominal" = TaskClassif$new(self$name, self$data, target = target),
         "numeric" = TaskRegr$new(self$name, self$data, target = target),
         stop("Unknown task type")
@@ -127,7 +132,8 @@ OMLData = R6Class("OMLData",
     #'   * `"number_of_missing_values"` (`integer()`): Number of missing values in the column.
     features = function() {
       if (is.null(private$.features)) {
-        private$.features = cached(download_data_features, "data_features", self$id, desc = self$desc, cache_dir = self$cache_dir)
+        private$.features = cached(download_data_features, "data_features", self$id,
+          desc = self$desc, cache_dir = self$cache_dir)
       }
 
       private$.features
@@ -153,7 +159,7 @@ OMLData = R6Class("OMLData",
     #' @field feature_names (`character()`)\cr
     #' Name of the features, as extracted from the OpenML data set description.
     feature_names = function() {
-      self$features[!is_target & !is_ignore & !is_row_identifier, name]
+      self$features[!is_target & !is_ignore & !is_row_identifier, "name", with = FALSE][[1L]]
     },
 
     #' @field nrow (`integer()`)\cr
