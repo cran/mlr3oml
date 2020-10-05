@@ -14,7 +14,7 @@
 #' automatically falls back to the implementation in ([RWeka::read.arff()]).
 #'
 #' @references
-#' \cite{mlr3oml}{vanschoren2014}
+#' `r tools::toRd(bibentries["vanschoren2014"])`
 #'
 #' @export
 #' @examples
@@ -74,6 +74,8 @@ OMLData = R6Class("OMLData",
     #' @description
     #' Creates a [mlr3::Task] using the provided target column, defaulting to the default target attribute
     #' of the task description.
+    #' Note that if the target column is incorrectly encoded, e.g. as numeric 0/1 for classification,
+    #' this will result in a task of the wrong type.
     #'
     #' @param target_names (`character()`)\cr
     #'   Name(s) of the target columns, or `NULL` for the default columns.
@@ -84,8 +86,8 @@ OMLData = R6Class("OMLData",
       }
 
       switch(as.character(self$features[list(target), "data_type", on = "name", with = FALSE][[1L]]),
-        "nominal" = TaskClassif$new(self$name, self$data, target = target),
-        "numeric" = TaskRegr$new(self$name, self$data, target = target),
+        "nominal" = new_task_classif(self$name, self$data, target = target),
+        "numeric" = new_task_regr(self$name, self$data, target = target),
         stop("Unknown task type")
       )
     }

@@ -37,7 +37,10 @@ if (requireNamespace("mlr3")) {
 }
 }
 \references{
-\cite{mlr3oml}{vanschoren2014}
+Vanschoren J, van Rijn JN, Bischl B, Torgo L (2014).
+\dQuote{OpenML.}
+\emph{ACM SIGKDD Explorations Newsletter}, \bold{15}(2), 49--60.
+\doi{10.1145/2641190.2641198}.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -171,6 +174,8 @@ Name of the quality to extract.}
 \subsection{Method \code{task()}}{
 Creates a \link[mlr3:Task]{mlr3::Task} using the provided target column, defaulting to the default target attribute
 of the task description.
+Note that if the target column is incorrectly encoded, e.g. as numeric 0/1 for classification,
+this will result in a task of the wrong type.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OMLData$task(target_names = NULL)}\if{html}{\out{</div>}}
 }
