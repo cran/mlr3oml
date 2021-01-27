@@ -1,7 +1,3 @@
-context("OMLData")
-
-skip_on_cran()
-
 test_that("OMLData iris", {
   oml_data = OMLData$new(61)
   expect_oml_data(oml_data)
@@ -10,7 +6,7 @@ test_that("OMLData iris", {
   expect_identical(oml_data$nrow, 150L)
   expect_identical(oml_data$ncol, 5L)
   expect_identical(oml_data$target_names, "class")
-  expect_is(oml_data$task(), "TaskClassif")
+  expect_r6(oml_data$task(), "TaskClassif")
 
   data = oml_data$data
   expect_data_table(data, nrows = 150L, ncols = 5L)
@@ -35,7 +31,6 @@ test_that("arff with wrong quotes", {
   tab = odata$data
   expect_data_table(tab, ncols = 7, nrows = 344)
   expect_factor(tab$species, levels = c("Adelie", "Gentoo", "Chinstrap"))
-
 
   otask = OMLTask$new(168746L)
   expect_data_table(otask$data$data, nrows = otask$nrow, ncols = otask$ncol)

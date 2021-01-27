@@ -1,5 +1,3 @@
-context("manual, expensive tests")
-
 skip("Expensive manual test")
 
 test_that("data is cached", {
@@ -41,7 +39,7 @@ test_that("data is cached", {
 
 test_that("study 99 can be loaded and parsed", {
   data_ids = list_oml_data_sets(tag = "study_99")$data_id
-  cache = FALSE
+  cache = TRUE
   options(warn = 2L)
 
   for (data_id in data_ids) {

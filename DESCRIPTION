@@ -1,6 +1,6 @@
 Package: mlr3oml
 Title: Connector Between 'mlr3' and 'OpenML'
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: 
     person(given = "Michel",
            family = "Lang",
@@ -17,13 +17,14 @@ URL: https://mlr3oml.mlr-org.com, https://github.com/mlr-org/mlr3oml
 BugReports: https://github.com/mlr-org/mlr3oml
 Depends: R (>= 3.1.0)
 Imports: backports (>= 1.1.6), checkmate, curl, data.table, jsonlite,
-        lgr, mlr3, mlr3misc (>= 0.5.0), R6, stringi
-Suggests: RWeka, farff, foreign, qs, testthat
+        lgr, mlr3, mlr3misc (>= 0.7.0), R6, stringi
+Suggests: RWeka, farff, foreign, qs, testthat (>= 3.0.0)
 Encoding: UTF-8
 NeedsCompilation: yes
+Config/testthat/edition: 3
 RoxygenNote: 7.1.1
-Packaged: 2020-10-20 09:21:15 UTC; lang
+Packaged: 2021-01-27 08:54:34 UTC; lang
 Author: Michel Lang [cre, aut] (<https://orcid.org/0000-0001-9754-0393>)
 Maintainer: Michel Lang <michellang@gmail.com>
 Repository: CRAN
-Date/Publication: 2020-10-20 09:50:06 UTC
+Date/Publication: 2021-01-27 09:20:06 UTC
