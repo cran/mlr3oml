@@ -1,6 +1,6 @@
 Package: mlr3oml
 Title: Connector Between 'mlr3' and 'OpenML'
-Version: 0.4.2
+Version: 0.4.3
 Authors@R: 
     person(given = "Michel",
            family = "Lang",
@@ -23,8 +23,8 @@ Encoding: UTF-8
 NeedsCompilation: yes
 Config/testthat/edition: 3
 RoxygenNote: 7.1.1
-Packaged: 2021-02-22 10:38:29 UTC; lang
+Packaged: 2021-04-16 07:36:09 UTC; michel
 Author: Michel Lang [cre, aut] (<https://orcid.org/0000-0001-9754-0393>)
 Maintainer: Michel Lang <michellang@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-02-22 13:50:05 UTC
+Date/Publication: 2021-04-16 07:50:02 UTC
