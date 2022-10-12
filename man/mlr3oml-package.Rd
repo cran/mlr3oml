@@ -6,11 +6,7 @@
 \alias{mlr3oml-package}
 \title{mlr3oml: Connector Between 'mlr3' and 'OpenML'}
 \description{
-Provides an interface to 'OpenML.org' to list and
-    download machine learning data and tasks. Data and tasks can be
-    automatically converted to 'mlr3' tasks. For a more sophisticated
-    interface which also allows uploading experiments, see the 'OpenML'
-    package.
+Provides an interface to 'OpenML.org' to list and download machine learning data, tasks and experiments. The 'OpenML' objects can be automatically converted to 'mlr3' objects. For a more sophisticated interface which also allows uploading to 'OpenML', see the 'OpenML' package.
 }
 \section{mlr3 Integration}{
 
@@ -18,6 +14,10 @@ This package adds the \link[mlr3:Task]{mlr3::Task} \code{"oml"} and the \link[ml
 \link[mlr3:mlr_tasks]{mlr3::mlr_tasks} and \link[mlr3:mlr_resamplings]{mlr3::mlr_resamplings}, respectively.
 For the former you may pass either a \code{data_id} or a \code{task_id}, the latter requires
 a \code{task_id}.
+Furthermore it allows to convert the OpenML objects to mlr3 objects using the usual S3 generics
+such as \link[mlr3:as_task]{mlr3::as_task}, \link[mlr3:as_learner]{mlr3::as_learner}, \link[mlr3:as_resampling]{mlr3::as_resampling}, \link[mlr3:as_resample_result]{mlr3::as_resample_result},
+\link[mlr3:as_benchmark_result]{mlr3::as_benchmark_result} or \link[mlr3:as_data_backend]{mlr3::as_data_backend}. This allows for a frictionless
+integration of OpenML and mlr3.
 }
 
 \section{Options}{
@@ -33,7 +33,23 @@ work without an API key, but you might get rate limited without an API key.
 If not set, defaults to the value of the environment variable \code{OPENMLAPIKEY}.
 \item \code{mlr3oml.arff_parser}: ARFF parser to use, defaults to the internal one relies
 on \code{\link[data.table:fread]{data.table::fread()}}. Can also be set to \code{"RWeka"} for the parser in
-\CRANpkg{RWeka} or \code{"farff"} for the reader implemented in \CRANpkg{farff}.
+\CRANpkg{RWeka}.
+\item \code{mlr3oml.parquet}: Enables or disables parquet as the default file format.
+If set to \code{TRUE}, the parquet version of datasets will be used by default.
+If set to \code{FALSE}, the arff version of datasets will be used by default.
+Note that the OpenML sever is still transitioning from arff to parquet and some features
+will work better with arff.
+Default is \code{FALSE}.
+}
+
+\strong{Relevant for developers}
+\itemize{
+\item \code{mlr3oml.test_server}:
+The default value for whether to use the OpenML \href{https://test.openml.org/}{test server}.
+Default is \code{FALSE}.
+\item \code{mlr3oml.test_api_key}:
+API key to use for the test server. If not set, defaults to the value of the environment
+variable \code{TESTOPENMLAPIKEY}.
 }
 }
 
@@ -48,11 +64,16 @@ Useful links:
 \itemize{
   \item \url{https://mlr3oml.mlr-org.com}
   \item \url{https://github.com/mlr-org/mlr3oml}
-  \item Report bugs at \url{https://github.com/mlr-org/mlr3oml}
+  \item Report bugs at \url{https://github.com/mlr-org/mlr3oml/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Michel Lang \email{michellang@gmail.com} (\href{https://orcid.org/0000-0001-9754-0393}{ORCID})
+\strong{Maintainer}: Sebastian Fischer \email{sebf.fischer@gmail.com} (\href{https://orcid.org/0000-0002-9609-3197}{ORCID})
+
+Authors:
+\itemize{
+  \item Michel Lang \email{michellang@gmail.com} (\href{https://orcid.org/0000-0001-9754-0393}{ORCID})
+}
 
 }

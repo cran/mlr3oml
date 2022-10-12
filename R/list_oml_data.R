@@ -5,7 +5,7 @@
 #'
 #' @description
 #' This function allows to query data sets, tasks, flows, setups, runs, and evaluation measures
-#' from \url{https://openml.org/d} using some simple filter criteria.
+#' from \url{https://www.openml.org/d} using some simple filter criteria.
 #'
 #' @details
 #' Filter values are usually provided as single atomic values (typically integer or character).
@@ -34,6 +34,7 @@
 #' @param limit (`integer()`)\cr
 #'   Limit the results to `limit` records.
 #'   Default is the value of option `"mlr3oml.limit"`, defaulting to 5000.
+#' @template param_test_server
 #' @param ... (any)\cr
 #'   Additional (unsupported) filters, as named arguments.
 #'
@@ -47,11 +48,11 @@
 #' \donttest{
 #' ### query data sets
 #' # search for titanic data set
-#' data_sets = list_oml_data_sets(data_name = "titanic")
+#' data_sets = list_oml_data(data_name = "titanic")
 #' print(data_sets)
 #'
 #' # search for a reduced version
-#' data_sets = list_oml_data_sets(
+#' data_sets = list_oml_data(
 #'   data_name = "titanic",
 #'   number_instances = c(2200, 2300),
 #'   number_features = 4
@@ -67,8 +68,9 @@
 #' runs = list_oml_runs(task_id = tasks$task_id)
 #' runs[, .N, by = task_id]
 #' }
-list_oml_data_sets = function(data_id = NULL, data_name = NULL, number_instances = NULL, number_features = NULL,
-  number_classes = NULL, number_missing_values = NULL, tag = NULL, limit = getOption("mlr3oml.limit", 5000L), ...) {
+list_oml_data = function(data_id = NULL, data_name = NULL, number_instances = NULL, number_features = NULL,
+  number_classes = NULL, number_missing_values = NULL, tag = NULL, limit = limit_default(),
+  test_server = test_server_default(), ...) {
   tab = get_paginated_table("data",
     data_id = data_id,
     data_name = data_name,
@@ -78,6 +80,7 @@ list_oml_data_sets = function(data_id = NULL, data_name = NULL, number_instances
     number_missing_values = number_missing_values,
     tag = tag,
     limit = limit,
+    server = get_server(test_server),
     ...
   )
 

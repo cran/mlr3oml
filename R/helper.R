@@ -1,12 +1,34 @@
-get_api_key = function() {
-  key = getOption("mlr3oml.api_key") %??% Sys.getenv("OPENMLAPIKEY")
-  if (nzchar(key))
+#' @noRd
+with_test_server = function(env = parent.frame()) {
+  op = options(mlr3oml.test_server = TRUE)
+  withr::defer(options(op), env)
+}
+
+with_public_server = function(env = parent.frame()) {
+  op = options(mlr3oml.test_server = FALSE)
+  withr::defer(options(op), env)
+}
+
+#' Returns the api key (if available) for the selected server.
+#' @param server (`character(1)`)\cr
+#'   The server to use.
+#' @noRd
+get_api_key = function(server) {
+  test_server = server == get_server(TRUE)
+  key = if (test_server) {
+    getOption("mlr3oml.test_api_key", Sys.getenv("TESTOPENMLAPIKEY"))
+  } else {
+    getOption("mlr3oml.api_key", Sys.getenv("OPENMLAPIKEY"))
+  }
+
+  if (nzchar(key)) {
     return(key)
+  }
 
   NA_character_
 }
 
-add_auth_string = function(url, api_key = get_api_key()) {
+add_auth_string = function(url, api_key = NULL) {
   if (is.na(api_key)) {
     return(url)
   }
@@ -15,14 +37,18 @@ add_auth_string = function(url, api_key = get_api_key()) {
   sprintf("%s?api_key=%s", url, api_key)
 }
 
-
 download_error = function(response) {
-  stopf("Error downloading '%s' (http code: %i, oml code: %i, message: '%s'",
-    response$url, response$http_code, response$oml_code, response$message)
+  stopf(
+    "Error downloading '%s' (http code: %i, oml code: %i, message: '%s'",
+    response$url, response$http_code, response$oml_code, response$message
+  )
 }
 
 
-download_file = function(url, path, api_key = get_api_key()) {
+download_file = function(url, path, api_key = NULL, server) {
+  if (is.null(api_key)) {
+    api_key = get_api_key(server)
+  }
   lg$debug("Downloading to local file system", url = url, path = path, authenticated = !is.na(api_key))
   response = curl::curl_fetch_disk(add_auth_string(url, api_key = api_key), path)
   http_code = response$status_code
@@ -58,7 +84,8 @@ download_file = function(url, path, api_key = get_api_key()) {
 }
 
 
-get_json = function(url, ..., simplify_vector = TRUE, simplify_data_frame = TRUE, api_key = get_api_key(), retries = 3L, error_on_fail = TRUE) { # nolint
+get_json = function(url, ..., simplify_vector = TRUE, simplify_data_frame = TRUE, server,
+  api_key = get_api_key(server), retries = 3L, error_on_fail = TRUE) {
   path = tempfile(fileext = ".json")
   on.exit(file.remove(path[file.exists(path)]))
   url = sprintf(url, ...)
@@ -90,49 +117,7 @@ get_json = function(url, ..., simplify_vector = TRUE, simplify_data_frame = TRUE
 }
 
 
-
-get_arff = function(url, ..., sparse = FALSE, api_key = get_api_key(), retries = 3L) {
-  path = tempfile(fileext = ".arff")
-  on.exit(file.remove(path[file.exists(path)]))
-  url = sprintf(url, ...)
-
-  lg$info("Retrieving ARFF", url = url, authenticated = !is.na(api_key))
-
-  for (retry in seq_len(retries)) {
-    response = download_file(url, path, api_key = api_key)
-
-    if (response$ok) {
-      lg$debug("Start processing ARFF file", path = path)
-      parser = getOption("mlr3oml.arff_parser", "internal")
-
-      if (sparse || parser == "RWeka") {
-        if (!requireNamespace("RWeka", quietly = TRUE)) {
-          stopf("Failed to parse arff file, install 'RWeka'")
-        }
-        tab = setDT(RWeka::read.arff(path))
-      } else if (parser == "farff") {
-        tab = setDT(utils::getFromNamespace("readARFF", ns = "farff")(path, show.info = FALSE))
-      } else if (parser == "internal") {
-        tab = read_arff(path)
-      } else {
-        stopf("Unknown parser '%s'", parser)
-      }
-
-      lg$debug("Finished processing ARFF file", nrow = nrow(tab), ncol = ncol(tab),
-        colnames = names(tab))
-
-      return(tab)
-    } else if (retry < retries && response$http_code >= 500L) {
-      delay = max(rnorm(1L, mean = 10), 0)
-      lg$debug("Server busy, retrying in %.2f seconds", delay, try = retry)
-      Sys.sleep(delay)
-    }
-  }
-
-  download_error(response)
-}
-
-get_paginated_table = function(type, ..., limit) {
+get_paginated_table = function(query_type, ..., limit, server) {
   limit = assert_count(limit, positive = TRUE, coerce = TRUE)
   dots = discard(list(...), is.null)
   chunk_size = magic_numbers$chunk_size
@@ -140,9 +125,9 @@ get_paginated_table = function(type, ..., limit) {
 
   while (nrow(tab) < limit) {
     dots$limit = min(limit - nrow(tab), chunk_size)
-    query = build_filter_query(type, dots)
+    query = build_filter_query(query_type, dots, server)
 
-    response = get_json(query, error_on_fail = FALSE)
+    response = get_json(query, error_on_fail = FALSE, server = server)
     if (inherits(response, "server_response")) {
       if (response$oml_code %in% magic_numbers$oml_no_more_results) {
         # no more results
@@ -165,3 +150,5 @@ get_paginated_table = function(type, ..., limit) {
 
   return(tab)
 }
+
+

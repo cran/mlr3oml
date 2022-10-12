@@ -1,31 +1,40 @@
 skip_on_cran()
 
-test_that("OMLData iris", {
-  oml_data = OMLData$new(61)
+test_that("OMLData iris arff", {
+  oml_data = OMLData$new(61, parquet = FALSE)
   expect_oml_data(oml_data)
-
   expect_identical(oml_data$name, "iris")
   expect_identical(oml_data$nrow, 150L)
   expect_identical(oml_data$ncol, 5L)
   expect_identical(oml_data$target_names, "class")
-  expect_r6(oml_data$task(), "TaskClassif")
-
-  data = oml_data$data
-  expect_data_table(data, nrows = 150L, ncols = 5L)
+  expect_r6(mlr3::as_task(oml_data), "TaskClassif")
+  expect_data_table(oml_data$data, nrows = 150L, ncols = 5L)
 })
 
-test_that("data backend", {
-  oml_data = OMLData$new(61)
-  expect_backend(as_data_backend(oml_data))
+test_that("Correct warning when dataset is missing columns", {
+  id = 313
+  odata = oml_data(313, parquet = TRUE)
+  expect_warning(odata$data)
+})
+
+test_that("OMLData iris parquet", {
+  oml_data = OMLData$new(61, parquet = TRUE)
+  expect_oml_data(oml_data)
+  expect_identical(oml_data$name, "iris")
+  expect_identical(oml_data$nrow, 150L)
+  expect_identical(oml_data$ncol, 5L)
+  expect_identical(oml_data$target_names, "class")
+  expect_r6(mlr3::as_task(oml_data), "TaskClassif")
+  expect_data_table(oml_data$data, nrows = 150L, ncols = 5L)
 })
 
 test_that("no default target column fails gracefully (#1)", {
   data_id = 4535L
-  oml_data = OMLData$new(data_id)
+  oml_data = OMLData$new(data_id, FALSE)
   expect_oml_data(oml_data)
-  expect_error(oml_data$task(), "default target attribute")
-  expect_task(oml_data$task("V10"))
-  expect_task(mlr3::tsk("oml", data_id = data_id, target_names = "V10"))
+  expect_error(mlr3::as_task(oml_data), "default target attribute")
+  expect_r6(mlr3::as_task(oml_data, "V10"), "Task")
+  expect_r6(mlr3::tsk("oml", data_id = data_id, target_names = "V10"), "Task")
 })
 
 test_that("arff with wrong quotes", {
@@ -40,7 +49,7 @@ test_that("arff with wrong quotes", {
 
 test_that("fallback for sparse files", {
   data_id = 292L
-  odata = OMLData$new(data_id)
+  odata = OMLData$new(data_id, FALSE)
   if (requireNamespace("RWeka", quietly = TRUE)) {
     expect_data_table(odata$data)
   } else {
@@ -53,9 +62,59 @@ test_that("unquoting works", {
   expect_false(anyMissing(OMLTask$new(task_id)$data$data))
 })
 
-test_that("TaskSurv creation", {
-  skip_if_not_installed("mlr3proba")
-  data_id = 1228
-  odata = OMLData$new(data_id)
-  expect_class(odata$task(c("time", "event")), "TaskSurv")
+test_that("parquet works", {
+  odata_parquet = OMLData$new(61, FALSE, parquet = TRUE)
+  b0 = mlr3misc::get_private(odata_parquet)$.get_backend()
+  b1 = mlr3misc::get_private(odata_parquet)$.get_backend()
+  expect_true(inherits(b0, "DataBackendDuckDB"))
+  odata_arff = OMLData$new(61, FALSE, parquet = FALSE)
+  b2 = mlr3misc::get_private(odata_arff)$.get_backend()
+  expect_true(inherits(b2, "DataBackendDataTable"))
+  expect_identical(b0, b1)
+  data_parquet = odata_parquet$data
+  data_arff = odata_arff$data
+  expect_set_equal(
+    names(data_parquet),
+    names(data_arff)
+  )
+  expect_true(nrow(data_parquet) == nrow(data_arff))
+})
+
+
+test_that("Can open help page for OpenML Data", {
+  expect_error(OMLData$new(31)$help(), regexp = NA)
+})
+
+test_that("OMLData arff fallback works when parquet does not exist", {
+  odata = OMLData$new(31, parquet = TRUE, cache = FALSE)
+  odata$data
+  expect_true(inherits(odata$.__enclos_env__$private$.backend, "DataBackendDuckDB"))
+
+  odata = OMLData$new(31, parquet = TRUE, cache = FALSE)
+  odata$desc
+  # non-existing file
+  odata$.__enclos_env__$private$.desc$minio_url = "http://openml1.win.tue.nl/dataset31/dataset_000.pq"
+  odata$data
+  expect_true(inherits(odata$.__enclos_env__$private$.backend, "DataBackendDataTable"))
+})
+
+test_that("as_data_backend falls back to arff when parquet does not exist", {
+  odata = OMLData$new(31, parquet = TRUE, cache = FALSE)
+  odata$desc
+  # non-existing file
+  odata$.__enclos_env__$private$.desc$minio_url = "http://openml1.win.tue.nl/dataset31/dataset_000.pq"
+  backend = as_data_backend(odata)
+  expect_r6(backend, "DataBackendDataTable")
+
+  odata = OMLData$new(31, parquet = TRUE, cache = FALSE)
+  backend = as_data_backend(odata)
+  expect_r6(backend, "DataBackendDuckDB")
+})
+
+test_that("Logicals are converted to factor", {
+  odata = oml_data(1050)
+  backend = as_data_backend(odata)
+  # renaming worked
+  assert_true("c" %in% backend$colnames)
+  expect_oml_data(odata)
 })

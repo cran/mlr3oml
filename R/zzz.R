@@ -1,15 +1,21 @@
 #' @import checkmate
 #' @import data.table
 #' @import mlr3misc
-#' @importFrom stats rnorm
-#' @importFrom mlr3 as_data_backend TaskClassif TaskRegr
+#' @import mlr3
 #' @importFrom R6 R6Class
+#' @importFrom methods hasArg
+#' @importFrom stats rnorm
+#' @importFrom utils installed.packages tail
 #'
 #' @section mlr3 Integration:
 #' This package adds the [mlr3::Task] `"oml"` and the [mlr3::Resampling] `"oml"` to
 #' [mlr3::mlr_tasks] and [mlr3::mlr_resamplings], respectively.
 #' For the former you may pass either a `data_id` or a `task_id`, the latter requires
 #' a `task_id`.
+#' Furthermore it allows to convert the OpenML objects to mlr3 objects using the usual S3 generics
+#' such as [mlr3::as_task], [mlr3::as_learner], [mlr3::as_resampling], [mlr3::as_resample_result],
+#' [mlr3::as_benchmark_result] or [mlr3::as_data_backend]. This allows for a frictionless
+#' integration of OpenML and mlr3.
 #'
 #' @section Options:
 #' * `mlr3oml.cache`: Enables or disables caching globally.
@@ -22,12 +28,30 @@
 #'   If not set, defaults to the value of the environment variable `OPENMLAPIKEY`.
 #' * `mlr3oml.arff_parser`: ARFF parser to use, defaults to the internal one relies
 #'   on [data.table::fread()]. Can also be set to `"RWeka"` for the parser in
-#'   \CRANpkg{RWeka} or `"farff"` for the reader implemented in \CRANpkg{farff}.
+#'   \CRANpkg{RWeka}.
+#' * `mlr3oml.parquet`: Enables or disables parquet as the default file format.
+#'   If set to `TRUE`, the parquet version of datasets will be used by default.
+#'   If set to `FALSE`, the arff version of datasets will be used by default.
+#'   Note that the OpenML sever is still transitioning from arff to parquet and some features
+#'   will work better with arff.
+#'   Default is `FALSE`.
+#'
+#' **Relevant for developers**
+#'
+#' * `mlr3oml.test_server`:
+#'   The default value for whether to use the OpenML [test server](https://test.openml.org/).
+#'   Default is `FALSE`.
+#' * `mlr3oml.test_api_key`:
+#'   API key to use for the test server. If not set, defaults to the value of the environment
+#'   variable `TESTOPENMLAPIKEY`.
 #'
 #' @section Logging:
 #' The \CRANpkg{lgr} package is used for logging.
 #' To change the threshold, use `lgr::get_logger("mlr3oml")$set_threshold()`.
 "_PACKAGE"
+
+# To silence RCMD CHECK
+utils::globalVariables(c("super"))
 
 .onLoad = function(libname, pkgname) { # nolint
   # nocov start
@@ -35,6 +59,11 @@
   backports::import(pkgname, "R_user_dir", force = TRUE)
   mlr3::mlr_tasks$add("oml", OMLTaskConnector)
   mlr3::mlr_resamplings$add("oml", OMLResamplingConnector)
+
+  mlr3::Task$set("private", "oml", NULL, overwrite = TRUE)
+  mlr3::Resampling$set("private", "oml", NULL, overwrite = TRUE)
+  mlr3::ResampleResult$set("private", "oml", NULL, overwrite = TRUE)
+  mlr3::BenchmarkResult$set("private", "oml", NULL, overwrite = TRUE)
 
   # setup logger
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
@@ -45,8 +74,13 @@
   utils::globalVariables(c("is_target", "is_ignore", "is_row_identifier"), pkgname)
 } # nocov end
 
-.onUnload <- function (libpath) { # nolint
+.onUnload = function(libpath) { # nolint
   # nocov start
+  Task$private_fields$oml = NULL
+  Learner$private_fields$oml = NULL
+  Resampling$private_fields$oml = NULL
+  ResampleResult$private_fields$oml = NULL
+  BenchmarkResult$private_fields$oml = NULL
   library.dynam.unload("mlr3oml", libpath)
 } # nocov end
 

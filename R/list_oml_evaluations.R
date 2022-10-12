@@ -2,13 +2,15 @@
 #' @param measures (`character()`)\cr
 #'   Vector of evaluation measures to restrict to.
 #' @export
-list_oml_evaluations = function(run_id = NULL, task_id = NULL, measures = NULL, tag = NULL, limit = getOption("mlr3oml.limit", 5000L), ...) {
+list_oml_evaluations = function(run_id = NULL, task_id = NULL, measures = NULL, tag = NULL,
+  limit = limit_default(), test_server = test_server_default(), ...) {
   tab = get_paginated_table("evaluation",
     run = run_id,
     task = task_id,
     "function" = measures,
     tag = tag,
     limit = limit,
+    server = get_server(test_server),
     ...
   )
 
@@ -21,4 +23,3 @@ list_oml_evaluations = function(run_id = NULL, task_id = NULL, measures = NULL, 
 
   return(tab[])
 }
-

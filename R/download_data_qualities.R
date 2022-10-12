@@ -1,5 +1,5 @@
-download_data_qualities = function(data_id) {
-  qualities = get_json("https://www.openml.org/api/v1/json/data/qualities/%i", data_id)[[1L]][[1L]]
+download_data_qualities = function(data_id, server) {
+  qualities = get_json(paste0(server, "/json/data/qualities/%i"), data_id, server = server)[[1L]][[1L]] # nolint
 
   qualities$value = as.numeric(qualities$value)
   setDT(qualities, key = "name")[]
