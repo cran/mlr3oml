@@ -1,9 +1,9 @@
 #' @title Interface to OpenML Data Sets
 #'
-#' @name oml_data_r6
+#' @name oml_data
 #'
 #' @description
-#' This is the class for data sets served on [OpenML](https://www.openml.org/d/).
+#' This is the class for data sets served on [OpenML](https://www.openml.org/search?type=data&status=active).
 #' This object can also be constructed using the sugar function [oml_data()].
 #'
 #' @section mlr3 Integration:
@@ -36,43 +36,43 @@
 #'
 #' @export
 #' @examples
-#' \donttest{
-#' library("mlr3")
-#' # OpenML Data object
-#' odata = OMLData$new(id = 9)
-#' # using sugar
-#' odata = oml_data(id = 9)
-#' print(odata)
-#' print(odata$target_names)
-#' print(odata$feature_names)
-#' print(odata$tags)
-#'
-#' # mlr3 conversion:
-#' task = as_task(odata)
-#' backend = as_data_backend(odata)
-#' class(backend)
-#'
-#' # get a task via tsk():
-#' tsk("oml", data_id = 9)
-#'
-#' # For parquet files
-#' if (requireNamespace("duckdb")) {
-#'   odata = OMLData$new(id = 9, parquet = TRUE)
+#' try({
+#'   library("mlr3")
+#'   # OpenML Data object
+#'   odata = OMLData$new(id = 9)
 #'   # using sugar
-#'   odata = oml_data(id = 9)
-#'
+#'   odata = odt(id = 9)
 #'   print(odata)
 #'   print(odata$target_names)
 #'   print(odata$feature_names)
 #'   print(odata$tags)
 #'
+#'   # mlr3 conversion:
+#'   task = as_task(odata)
 #'   backend = as_data_backend(odata)
 #'   class(backend)
-#'   task = as_task(odata)
-#'   task = tsk("oml", data_id = 9, parquet = TRUE)
-#'   class(task$backend)
-#' }
-#' }
+#'
+#'   # get a task via tsk():
+#'   tsk("oml", data_id = 9)
+#'
+#'   # For parquet files
+#'   if (requireNamespace("duckdb")) {
+#'     odata = OMLData$new(id = 9, parquet = TRUE)
+#'     # using sugar
+#'     odata = odt(id = 9)
+#'
+#'     print(odata)
+#'     print(odata$target_names)
+#'     print(odata$feature_names)
+#'     print(odata$tags)
+#'
+#'     backend = as_data_backend(odata)
+#'     class(backend)
+#'     task = as_task(odata)
+#'     task = tsk("oml", data_id = 9, parquet = TRUE)
+#'     class(task$backend)
+#'   }
+#' }, silent = TRUE)
 OMLData = R6Class("OMLData",
   inherit = OMLObject,
   public = list(
@@ -233,12 +233,11 @@ OMLData = R6Class("OMLData",
         if (inherits(path, "try-error")) {
           lg$info("Failed to download parquet, trying arff.", id = self$id)
         } else {
-          backend = try(as_duckdb_backend_character(path, primary_key = primary_key), silent = TRUE)
+          factors = self$features[get("data_type") == "nominal", "name"][[1L]]
+          backend = try(as_duckdb_backend_character(path, primary_key = primary_key, factors = factors), silent = TRUE)
           if (inherits(backend, "try-error")) {
             msg = paste(
               "Parquet available but failed to create backend, reverting to arff.",
-              "This might be due to a bug in duckdb, that happens with many columns.",
-              "It might also be that the parquet version of the dataset is faulty.",
               sep = "\n"
             )
             lg$info(msg, id = self$id)
