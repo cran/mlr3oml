@@ -1,6 +1,6 @@
 Package: mlr3oml
 Title: Connector Between 'mlr3' and 'OpenML'
-Version: 0.7.2
+Version: 0.8.0
 Authors@R: c(
     person("Michel", "Lang", , "michellang@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0001-9754-0393")),
@@ -25,9 +25,10 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 NeedsCompilation: yes
 RoxygenNote: 7.2.3
-Packaged: 2023-06-12 14:45:57 UTC; sebi
+Config/Needs/website: rmarkdown
+Packaged: 2023-07-05 07:33:34 UTC; sebi
 Author: Michel Lang [aut] (<https://orcid.org/0000-0001-9754-0393>),
   Sebastian Fischer [cre, aut] (<https://orcid.org/0000-0002-9609-3197>)
 Maintainer: Sebastian Fischer <sebf.fischer@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-06-12 18:10:09 UTC
+Date/Publication: 2023-07-06 08:00:07 UTC
