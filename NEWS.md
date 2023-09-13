@@ -1,3 +1,12 @@
+# mlr3oml 0.9.0
+
+* Fix: Parquet datasets now work where columns simultaneously have to be renamed
+and converted.
+* Added upload functions:
+  * `publish_data` to upload a dataset on OpenML
+  * `publish_task` to create a task on OpenML
+  * `publish_collection` to create a collection on OpenML
+
 # mlr3oml 0.8.0
 
 * Listing functions don't return the tables invisibly anymore.
