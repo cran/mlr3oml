@@ -1,6 +1,6 @@
-f95d2dde6f8721c4f9fbb79cbe242466 *DESCRIPTION
-02a6cf63cf02e9217124705871ec3cf7 *NAMESPACE
-042cb0f6b2a3ac952f2a54570a2a91e0 *NEWS.md
+38bdefbdcf85ca24943459e60b5ea43a *DESCRIPTION
+e65e8018a3e35a0fb5b86beb32f87d39 *NAMESPACE
+65b1c49b8ad0f9e13f8c6b24bd7ca028 *NEWS.md
 d54b99d3a456878eb9a07a944fb18632 *R/OMLCollection.R
 2f0d2819054b31ac87a4f48015ee2bc6 *R/OMLData.R
 ee4412980e3e43b32e4eebbcb2b7cfdf *R/OMLFlow.R
@@ -26,6 +26,7 @@ ff36ac119abceecb8f1add9f15e80a65 *R/download_desc_task.R
 17d342b6cb8b54e0e2abfa793ba34d8f *R/helper.R
 a55a256458d5bf4878ee98cafd705ef1 *R/helper_query.R
 37e8bd056c5dbaf1331820c8a5f45dbe *R/helper_xml.R
+fec02be28d245bc20e02f9938e440718 *R/list_oml_collections.R
 0ab389b282668f51dfd6dcce2dbea4b9 *R/list_oml_data.R
 bce57bd7c66c7a2d9acab1fccf82b23b *R/list_oml_evaluations.R
 540c5a2d0256353774c42f24014fed59 *R/list_oml_flows.R
@@ -43,11 +44,11 @@ b44da0d9ab59d55de3265d555a203f70 *R/utils.R
 a15cd446d8b81e6e2efc6aa32f177f5e *R/write_arff.R
 f4389f3a11a32249b7cc3b31bc57ad6e *R/zzz.R
 7e1c43729805cdec13a324c1307b3858 *README.md
-76161b65639451c966be75488458b3c3 *build/partial.rdb
+1bf18d9c216b8d95033f0bd2fe2906b2 *build/partial.rdb
 dfc457e4d2d3afd03cd4a50e194df758 *inst/testthat/helper_expectation.R
 800fa916722f00c539be0a6abcf29306 *man/as_learner.OMLFlow.Rd
-e27971cd1746784a2b1b93f82070eaca *man/list_oml.Rd
-3fb1a7000d640a106e0d3a639d54fba5 *man/mlr3oml-package.Rd
+d0342296c1638a7d95403030e62717da *man/list_oml.Rd
+e03e3188a4408173e7a23aa73710b09e *man/mlr3oml-package.Rd
 72ffad8179d8dc610f9b319a9121181c *man/ocl.Rd
 2b07c0fd055f79d1b141389820ec4910 *man/odt.Rd
 7389b2aba92017056b40bc888c86d3c8 *man/oflw.Rd
@@ -81,6 +82,7 @@ a745994ca92509bd50678d2aa328f2c0 *tests/testthat/test_OMLRun.R
 cf0bb92cd314114a2ac7f03d03ba8dbe *tests/testthat/test_OMLTaskConnector.R
 042bef66be8a6965295a935bcd6cd526 *tests/testthat/test_cache.R
 21b503a425f220b32efa733194c31797 *tests/testthat/test_helpers.R
+a89b31f2b856a20ec8af8d24a11dead6 *tests/testthat/test_list_oml_collections.R
 94fe904b26b746e06664bbcfa4ab70c9 *tests/testthat/test_list_oml_data.R
 55fdc9d09e4c252d76d91da6021a4b0c *tests/testthat/test_list_oml_evaluations.R
 f1bf076b6b4477ec286b6b587030204a *tests/testthat/test_list_oml_flows.R

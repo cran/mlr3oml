@@ -1,3 +1,9 @@
+# mlr3oml 0.11.0
+
+## New Features
+
+* Added `list_oml_collections()` to list collections (run or task collections) on OpenML.
+
 # mlr3oml 0.10.1
 
 * Bugfix: provide anchors for links in Rd files
