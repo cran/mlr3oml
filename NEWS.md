@@ -1,3 +1,8 @@
+# mlr3oml 0.12.0
+
+* Move from `qs` to `qs2` package for caching.
+* Add `uploader` argument to `list_oml_data()`.
+
 # mlr3oml 0.11.0
 
 ## New Features
